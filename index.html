@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEC-07 // CLEARANCE REQUIRED</title>
+<style>
+  :root{
+    --bg:#05070a; --panel:#0a0e14; --panel2:#0d1219; --border:#1b2b3a;
+    --text:#c9d6e3; --dim:#4d6070; --accent:#00ff9c; --red:#ff2d55;
+    --amber:#ffb020; --blue:#58a6ff; --glow:rgba(0,255,156,.25);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Consolas','Courier New',monospace;}
+  html,body{height:100%}
+  body{
+    background:
+      radial-gradient(circle at 80% -10%, rgba(255,45,85,.12), transparent 45%),
+      radial-gradient(circle at 10% 110%, rgba(0,255,156,.10), transparent 45%),
+      var(--bg);
+    color:var(--text);min-height:100vh;padding:20px 16px 80px;overflow-x:hidden;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0px,rgba(0,0,0,.22) 1px,transparent 1px,transparent 3px);
+    opacity:.45;
+  }
+  .wrap{max-width:980px;margin:0 auto;position:relative;z-index:2}
+
+  #login{min-height:80vh;display:flex;align-items:center;justify-content:center;position:relative;z-index:2}
+  .login-box{
+    width:100%;max-width:420px;background:var(--panel);border:1px solid var(--border);
+    border-radius:10px;padding:32px 28px;text-align:center;box-shadow:0 0 60px rgba(0,255,156,.08);
+    animation:rise .5s ease;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  .login-box .lk{color:var(--red);font-size:.66rem;letter-spacing:4px;font-weight:700;margin-bottom:8px}
+  .login-box h2{color:#fff;font-size:1.3rem;letter-spacing:3px;margin-bottom:22px}
+  .login-box input{
+    width:100%;background:#020405;border:1px solid var(--border);border-radius:6px;
+    padding:14px 16px;color:var(--accent);font-size:1rem;letter-spacing:4px;text-align:center;outline:none;transition:.2s;
+  }
+  .login-box input:focus{border-color:var(--accent);box-shadow:0 0 20px var(--glow)}
+  .login-box button{
+    margin-top:16px;width:100%;background:var(--accent);color:#000;border:none;
+    border-radius:6px;padding:13px;font-weight:900;letter-spacing:3px;cursor:pointer;font-size:.85rem;transition:.2s;
+  }
+  .login-box button:hover{filter:brightness(1.15);box-shadow:0 0 24px var(--glow)}
+  .login-box .hint{margin-top:14px;color:var(--dim);font-size:.62rem;letter-spacing:2px}
+  .login-box .err{color:var(--red);font-size:.68rem;letter-spacing:2px;margin-top:12px;min-height:14px}
+
+  #main{display:none}
+  .topbar{
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    border:1px solid var(--border);border-radius:6px;background:var(--panel);
+    padding:12px 16px;margin-bottom:18px;box-shadow:0 0 40px rgba(0,255,156,.06) inset;
+  }
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--red);box-shadow:0 0 12px var(--red);animation:pulse 1.4s infinite}
+  @keyframes pulse{50%{opacity:.25}}
+  .topbar .tag{color:var(--accent);font-size:.72rem;letter-spacing:2px;font-weight:700}
+  .topbar .live{color:var(--red);font-size:.72rem;letter-spacing:2px;font-weight:700}
+  .topbar .clock{margin-inline-start:auto;color:var(--dim);font-size:.72rem}
+  .lang-btn{
+    background:transparent;color:var(--accent);border:1px solid var(--accent);
+    border-radius:4px;padding:7px 16px;cursor:pointer;font-size:.72rem;letter-spacing:1px;font-weight:700;transition:.2s;
+  }
+  .lang-btn:hover{background:var(--accent);color:#000;box-shadow:0 0 20px var(--glow)}
+
+  .hero{
+    border:1px solid var(--red);border-radius:8px;
+    background:linear-gradient(180deg,rgba(255,45,85,.09),transparent 70%),var(--panel);
+    padding:26px;margin-bottom:18px;position:relative;overflow:hidden;
+  }
+  .hero::before{
+    content:"RESTRICTED";position:absolute;top:14px;inset-inline-end:-36px;
+    transform:rotate(35deg);background:var(--red);color:#000;font-size:.6rem;
+    font-weight:900;letter-spacing:3px;padding:5px 46px;
+  }
+  .hero .kicker{color:var(--red);font-size:.68rem;letter-spacing:4px;font-weight:700;margin-bottom:10px}
+  .hero h1{font-size:clamp(1.4rem,5vw,2.2rem);color:#fff;line-height:1.25;text-shadow:0 0 22px rgba(255,45,85,.35);letter-spacing:2px}
+  .hero .en{color:var(--dim);font-size:.8rem;letter-spacing:3px;margin-top:8px}
+  .hero.glitch h1{animation:glitch .4s steps(2) infinite}
+  @keyframes glitch{
+    0%{text-shadow:2px 0 var(--red),-2px 0 var(--blue)}
+    50%{text-shadow:-2px 0 var(--red),2px 0 var(--blue)}
+    100%{text-shadow:2px 0 var(--red),-2px 0 var(--blue)}
+  }
+
+  .ipblock{
+    border:1px dashed var(--accent);border-radius:8px;background:rgba(0,255,156,.04);
+    padding:18px;margin-bottom:18px;text-align:center;
+  }
+  .ipblock .lbl{color:var(--dim);font-size:.66rem;letter-spacing:3px;margin-bottom:10px}
+  .ipblock .ip{font-size:clamp(1.4rem,6vw,2.4rem);font-weight:900;color:var(--accent);letter-spacing:3px;text-shadow:0 0 24px var(--glow)}
+  .ipblock .sub{color:var(--dim);font-size:.66rem;letter-spacing:2px;margin-top:10px}
+
+  .countdown{border:1px solid var(--amber);border-radius:8px;background:rgba(255,176,32,.05);padding:18px;margin-bottom:18px;text-align:center;transition:.4s}
+  .countdown.done{border-color:var(--accent);background:rgba(0,255,156,.06)}
+  .countdown .clbl{color:var(--amber);font-size:.66rem;letter-spacing:3px;margin-bottom:10px;font-weight:700;transition:.4s}
+  .countdown.done .clbl{color:var(--accent)}
+  .countdown .cval{font-size:clamp(1.6rem,7vw,2.8rem);font-weight:900;color:var(--amber);letter-spacing:6px;text-shadow:0 0 24px rgba(255,176,32,.4);transition:.4s}
+  .countdown.done .cval{color:var(--accent);text-shadow:0 0 24px var(--glow)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:18px}
+  .field{background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:14px 16px;position:relative;transition:.3s}
+  .field:hover{border-color:var(--accent);box-shadow:0 0 24px rgba(0,255,156,.08)}
+  .field .label{color:var(--dim);font-size:.62rem;letter-spacing:2.5px;margin-bottom:7px;text-transform:uppercase}
+  .field .value{font-size:.95rem;font-weight:700;line-height:1.55;color:var(--text);transition:.3s;position:relative}
+  .field .value.redact{background:#1b2b3a;color:transparent;border-radius:3px;user-select:none;padding:0 6px}
+  .field.revealed{border-color:var(--accent);box-shadow:0 0 24px var(--glow)}
+  .field.revealed .value{animation:reveal .5s ease}
+  @keyframes reveal{from{opacity:0;transform:translateY(-6px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+  .field::after{content:"";position:absolute;top:8px;inset-inline-end:10px;width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:.5}
+  .field.revealed::after{background:var(--accent);opacity:1;box-shadow:0 0 10px var(--accent)}
+
+  .section-title{color:var(--blue);font-size:.72rem;letter-spacing:3px;font-weight:700;margin:22px 0 12px;display:flex;align-items:center;gap:10px}
+  .section-title::after{content:"";flex:1;height:1px;background:var(--border)}
+
+  .files{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+  .file{display:flex;align-items:center;gap:12px;background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;cursor:pointer;transition:.2s;position:relative}
+  .file:hover{border-color:var(--blue);background:#111a24;transform:translateX(-3px)}
+  .file .ficon{font-size:1.3rem;flex-shrink:0}
+  .file .fmeta{flex:1;min-width:0}
+  .file .fname{font-size:.82rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .file .fsize{font-size:.62rem;color:var(--dim);letter-spacing:1px;margin-top:3px}
+  .file .badge{font-size:.55rem;letter-spacing:1px;padding:3px 7px;border-radius:3px;background:rgba(255,45,85,.15);color:var(--red);border:1px solid rgba(255,45,85,.4);flex-shrink:0;transition:.3s}
+  .file.open .badge{background:rgba(0,255,156,.12);color:var(--accent);border-color:rgba(0,255,156,.4)}
+
+  .terminal{border:1px solid var(--border);border-radius:8px;background:#020405;margin-top:22px;overflow:hidden}
+  .term-head{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--border)}
+  .term-head .tdot{width:9px;height:9px;border-radius:50%}
+  .term-head .r{background:#ff5f56}.term-head .y{background:#ffbd2e}.term-head .g{background:#27c93f}
+  .term-head .ttl{margin-inline-start:8px;color:var(--dim);font-size:.66rem;letter-spacing:2px}
+  .term-body{padding:16px;font-size:.78rem;line-height:1.9;height:240px;overflow-y:auto;color:var(--accent)}
+  .term-body .line{white-space:pre-wrap;word-break:break-all}
+  .term-body .red{color:var(--red)}.term-body .dim{color:var(--dim)}
+  .term-body .amb{color:var(--amber)}.term-body .blue{color:var(--blue)}
+
+  .foot{text-align:center;color:var(--dim);font-size:.62rem;letter-spacing:3px;margin-top:22px}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="login-box">
+    <div class="lk">■ SEC-07 SECURE GATEWAY</div>
+    <h2>CLEARANCE CODE</h2>
+    <input id="code" maxlength="4" placeholder="••••" autocomplete="off">
+    <button onclick="tryLogin()">AUTHENTICATE</button>
+    <div class="err" id="err"></div>
+    <div class="hint">HINT: 1337</div>
+  </div>
+</div>
+
+<div class="wrap" id="main">
+
+  <div class="topbar">
+    <div class="dot"></div>
+    <span class="live">● LIVE FEED</span>
+    <span class="tag">TARGET DOSSIER // SEC-07</span>
+    <span class="clock" id="clock">--:--:--</span>
+    <button class="lang-btn" onclick="toggleLang()" id="langBtn">EN</button>
+  </div>
+
+  <!-- ARABIC -->
+  <div id="ar">
+    <div class="hero" id="heroAr">
+      <div class="kicker">■ ملف هدف مُصنَّف — وصول مقيّد</div>
+      <h1>TARGET: NULL</h1>
+      <div class="en">IDENTITY MASKED · SEC-07</div>
+    </div>
+
+    <div class="ipblock">
+      <div class="lbl">IP المستخدم للاتصال</div>
+      <div class="ip" id="ipAr">—</div>
+      <div class="sub">اتصال مشفّر · هوية مُقنّعة · لا أثر</div>
+    </div>
+
+    <div class="countdown" id="cdBoxAr">
+      <div class="clbl" id="cdLblAr">■ فك التشفير يبدأ خلال</div>
+      <div class="cval" id="cdAr">00:00:10</div>
+    </div>
+
+    <div class="grid" id="gridAr">
+      <div class="field" data-k="name"><div class="label">الاسم الكامل</div><div class="value redact">████████████</div></div>
+      <div class="field" data-k="age"><div class="label">العمر</div><div class="value redact">██</div></div>
+      <div class="field" data-k="mother"><div class="label">الأم</div><div class="value redact">██████</div></div>
+      <div class="field" data-k="father"><div class="label">الأب</div><div class="value redact">██████</div></div>
+      <div class="field" data-k="sib"><div class="label">الإخوة</div><div class="value redact">███ · ███ · ███</div></div>
+      <div class="field" data-k="res"><div class="label">السكن</div><div class="value redact">████████████████████</div></div>
+    </div>
+
+    <div class="section-title">■ الملفات المُلتقطة</div>
+    <div class="files">
+      <div class="file" data-k="dossier" onclick="openFile('dossier')"><div class="ficon">📄</div><div class="fmeta"><div class="fname">dossier_NULL.pdf</div><div class="fsize">2.4 MB · PDF · مُشفّر</div></div><div class="badge">SEALED</div></div>
+      <div class="file" data-k="id" onclick="openFile('id')"><div class="ficon">🪪</div><div class="fmeta"><div class="fname">id_scan_042.png</div><div class="fsize">1.1 MB · IMAGE · مُلتقط</div></div><div class="badge">SEALED</div></div>
+      <div class="file" data-k="logs" onclick="openFile('logs')"><div class="ficon">📊</div><div class="fmeta"><div class="fname">network_logs.csv</div><div class="fsize">884 KB · CSV · حركة</div></div><div class="badge">SEALED</div></div>
+      <div class="file" data-k="keys" onclick="openFile('keys')"><div class="ficon">🔑</div><div class="fmeta"><div class="fname">session_tokens.bin</div><div class="fsize">12 KB · BINARY · مُستخرج</div></div><div class="badge">SEALED</div></div>
+      <div class="file" data-k="db" onclick="openFile('db')"><div class="ficon">🗄️</div><div class="fmeta"><div class="fname">users_table.sql</div><div class="fsize">5.7 MB · SQL · مُصدَّر</div></div><div class="badge">SEALED</div></div>
+      <div class="file" data-k="ip" onclick="openFile('ip')"><div class="ficon">🌐</div><div class="fmeta"><div class="fname">ip_origin.json</div><div class="fsize">3 KB · JSON · توجيه</div></div><div class="badge">SEALED</div></div>
+    </div>
+
+    <div class="section-title">■ طرفية التنفيذ</div>
+    <div class="terminal">
+      <div class="term-head"><div class="tdot r"></div><div class="tdot y"></div><div class="tdot g"></div><span class="ttl">/home/ops — zsh</span></div>
+      <div class="term-body" id="termAr"></div>
+    </div>
+  </div>
+
+  <!-- ENGLISH -->
+  <div id="en" hidden>
+    <div class="hero" id="heroEn">
+      <div class="kicker">■ CLASSIFIED TARGET FILE — RESTRICTED ACCESS</div>
+      <h1>TARGET: NULL</h1>
+      <div class="en">IDENTITY MASKED · SEC-07</div>
+    </div>
+
+    <div class="ipblock">
+      <div class="lbl">IP IN USE</div>
+      <div class="ip" id="ipEn">—</div>
+      <div class="sub">ENCRYPTED TUNNEL · MASKED IDENTITY · NO TRACE</div>
+    </div>
+
+    <div class="countdown" id="cdBoxEn">
+      <div class="clbl" id="cdLblEn">■ DECRYPTION STARTS IN</div>
+      <div class="cval" id="cdEn">00:00:10</div>
+    </div>
+
+    <div class="grid" id="gridEn">
+      <div class="field" data-k="name"><div class="label">Full Name</div><div class="value redact">████████████</div></div>
+      <div class="field" data-k="age"><div class="label">Age</div><div class="value redact">██</div></div>
+      <div class="field" data-k="mother"><div class="label">Mother</div><div class="value redact">██████</div></div>
+      <div class="field" data-k="father"><div class="label">Father</div><div class="value redact">██████</div></div>
+      <div class="field" data-k="sib"><div class="label">Siblings</div><div class="value redact">███ · ███ · ███</div></div>
+      <div class="field" data-k="res"><div class="label">Residence</div><div class="value redact">████████████████████</div></div>
+    </div>
+
+    <div class="section-title">■ CAPTURED FILES</div>
+    <div class="files">
+      <div class="file" data-k="dossier" onclick="openFile('dossier')"><div class="ficon">📄</div><div class="fmeta"><div class="fname">dossier_NULL.pdf</div><div class="fsize">2.4 MB · PDF · ENCRYPTED</div></div><div class="badge">SEALED</div></div>
+      <div class="file" data-k="id" onclick="openFile('id')"><div class="ficon">🪪</div><div class="fmeta"><div class="fname">id_scan_042.png</div><div class="fsize">1.1 MB · IMAGE · CAPTURED</div></div><div class="badge">SEALED</div></div>
+      <div class="file" data-k="logs" onclick="openFile('logs')"><div class="ficon">📊</div><div class="fmeta"><div class="fname">network_logs.csv</div><div class="fsize">884 KB · CSV · TRAFFIC</div></div><div class="badge">SEALED</div></div>
+      <div class="file" data-k="keys" onclick="openFile('keys')"><div class="ficon">🔑</div><div class="fmeta"><div class="fname">session_tokens.bin</div><div class="fsize">12 KB · BINARY · DUMPED</div></div><div class="badge">SEALED</div></div>
+      <div class="file" data-k="db" onclick="openFile('db')"><div class="ficon">🗄️</div><div class="fmeta"><div class="fname">users_table.sql</div><div class="fsize">5.7 MB · SQL · EXPORTED</div></div><div class="badge">SEALED</div></div>
+      <div class="file" data-k="ip" onclick="openFile('ip')"><div class="ficon">🌐</div><div class="fmeta"><div class="fname">ip_origin.json</div><div class="fsize">3 KB · JSON · ROUTING</div></div><div class="badge">SEALED</div></div>
+    </div>
+
+    <div class="section-title">■ EXECUTION TERMINAL</div>
+    <div class="terminal">
+      <div class="term-head"><div class="tdot r"></div><div class="tdot y"></div><div class="tdot g"></div><span class="ttl">/home/ops — zsh</span></div>
+      <div class="term-body" id="termEn"></div>
+    </div>
+  </div>
+
+  <div class="foot">SECURE INTERFACE · [ SEC-07 ]</div>
+</div>
+
+<script>
+  const CODE = '1337';
+  function tryLogin(){
+    const v = document.getElementById('code').value.trim();
+    if (v === CODE){
+      document.getElementById('login').style.display = 'none';
+      document.getElementById('main').style.display = 'block';
+      boot();
+    } else {
+      const err = document.getElementById('err');
+      err.textContent = document.documentElement.lang === 'ar' ? '✕ رمز خاطئ — إعادة المحاولة' : '✕ INVALID CODE — RETRY';
+      setTimeout(()=> err.textContent = '', 1800);
+    }
+  }
+  document.getElementById('code').addEventListener('keydown', e=>{ if (e.key === 'Enter') tryLogin(); });
+
+  /* ===== reveal data (placeholder / masked) ===== */
+const DATA = {
+  ar: {
+    name: 'عامر محمد خالد كلبونة',
+    age: '[16]',
+    mother: 'رسمية',
+    father: 'خالد',
+    sib: 'محمد · تامر · عامر',
+    res: '[نابلس نزلة القريون عمارة الزربا الطابق الاول]'
+  },
+  en: {
+    name: 'Amer Mohammed Khaled Kalbouna',
+    age: '[16]',
+    mother: 'Rasmiyah',
+    father: 'Khaled',
+    sib: 'Mohammed · Tamer · Amer',
+    res: '[Nablus, Qaryoun descent, Al-Zarba Building, first floor]'
+  }
+};
+
+  function boot(){
+    startClock();
+    rotateIP();
+    setInterval(rotateIP, 4000);
+    startCountdown();
+    runTerminal();
+    setInterval(glitchPulse, 6000);
+  }
+
+  function startClock(){
+    const c = document.getElementById('clock');
+    setInterval(()=> c.textContent = new Date().toLocaleTimeString('en-GB'), 1000);
+  }
+
+  const ipEls = [document.getElementById('ipAr'), document.getElementById('ipEn')];
+  const octet = () => Math.floor(Math.random()*254)+1;
+  const pools = [
+    () => `10.${octet()}.${octet()}.${octet()}`,
+    () => `192.168.${octet()}.${octet()}`,
+    () => `172.${16+Math.floor(Math.random()*16)}.${octet()}.${octet()}`,
+    () => `203.0.113.${octet()}`,
+    () => `198.51.100.${octet()}`
+  ];
+  function rotateIP(){
+    const ip = pools[Math.floor(Math.random()*pools.length)]();
+    ipEls.forEach(el => el && (el.textContent = ip));
+  }
+
+  let countdownDone = false;
+  function startCountdown(){
+    const boxAr = document.getElementById('cdBoxAr'), boxEn = document.getElementById('cdBoxEn');
+    const lblAr = document.getElementById('cdLblAr'), lblEn = document.getElementById('cdLblEn');
+    const valAr = document.getElementById('cdAr'), valEn = document.getElementById('cdEn');
+    let s = 10;
+    const fmt = n => '00:00:' + String(n).padStart(2,'0');
+    valAr.textContent = fmt(s); valEn.textContent = fmt(s);
+    const iv = setInterval(()=>{
+      s--;
+      if (s <= 0){
+        clearInterval(iv);
+        countdownDone = true;
+        boxAr.classList.add('done'); boxEn.classList.add('done');
+        lblAr.textContent = '■ اكتمل فك التشفير — الوصول مفتوح';
+        lblEn.textContent = '■ DECRYPTION COMPLETE — ACCESS GRANTED';
+        valAr.textContent = '100%'; valEn.textContent = '100%';
+        revealAll();
+        return;
+      }
+      valAr.textContent = fmt(s); valEn.textContent = fmt(s);
+    }, 1000);
+  }
+
+  function revealAll(){
+    // reveal fields
+    document.querySelectorAll('.field').forEach(f=>{
+      const k = f.dataset.k;
+      const val = f.querySelector('.value');
+      const lang = f.closest('#ar') ? 'ar' : 'en';
+      val.textContent = DATA[lang][k] || '[REDACTED]';
+      val.classList.remove('redact');
+      f.classList.add('revealed');
+    });
+    // unlock files badges
+    document.querySelectorAll('.file').forEach(f=>{
+      f.classList.add('open');
+      const b = f.querySelector('.badge');
+      if (b) b.textContent = 'OPEN';
+    });
+    // terminal message
+    const msgAr = '> تم فك التشفير · البيانات محجوبة — محاكاة فقط';
+    const msgEn = '> decryption complete · data redacted — simulation only';
+    const tAr = document.getElementById('termAr'), tEn = document.getElementById('termEn');
+    const lang = document.documentElement.lang;
+    const t = lang === 'ar' ? tAr : tEn;
+    const d = document.createElement('div');
+    d.className = 'line amb';
+    d.textContent = lang === 'ar' ? msgAr : msgEn;
+    t.appendChild(d); t.scrollTop = t.scrollHeight;
+  }
+
+  function glitchPulse(){
+    [document.getElementById('heroAr'), document.getElementById('heroEn')].forEach(h=>{
+      if (!h) return;
+      h.classList.add('glitch');
+      setTimeout(()=> h.classList.remove('glitch'), 500);
+    });
+  }
+
+  const termAr = document.getElementById('termAr');
+  const termEn = document.getElementById('termEn');
+  const script = [
+    {cls:'dim', ar:'[sys] تهيئة الجلسة...', en:'[sys] initializing session...'},
+    {cls:'',   ar:'$ load_profile --target NULL', en:'$ load_profile --target NULL'},
+    {cls:'blue',ar:'> تم تحميل 6 عناصر', en:'> 6 items loaded'},
+    {cls:'',   ar:'$ spoof_ip --rotate --tunnel', en:'$ spoof_ip --rotate --tunnel'},
+    {cls:'amb',ar:'> تم توجيه الاتصال', en:'> connection routed'},
+    {cls:'',   ar:'$ scan --ports --services', en:'$ scan --ports --services'},
+    {cls:'blue',ar:'> 22/tcp open  ssh', en:'> 22/tcp open  ssh'},
+    {cls:'blue',ar:'> 443/tcp open https', en:'> 443/tcp open https'},
+    {cls:'blue',ar:'> 8080/tcp open http-alt', en:'> 8080/tcp open http-alt'},
+    {cls:'',   ar:'$ firewall --breach', en:'$ firewall --breach'},
+    {cls:'red', ar:'! محاولة اختراق جدار الحماية...', en:'! attempting firewall breach...'},
+    {cls:'red', ar:'! وصول مرفوض — تصريح مطلوب', en:'! ACCESS DENIED — clearance required'},
+    {cls:'',   ar:'$ status', en:'$ status'},
+    {cls:'amb',ar:'> الجلسة نشطة · الهوية مقنّعة', en:'> SESSION ACTIVE · IDENTITY MASKED'},
+  ];
+  let idx = 0;
+  function runTerminal(){
+    if (idx >= script.length){
+      setTimeout(()=>{ termAr.innerHTML=''; termEn.innerHTML=''; idx=0; runTerminal(); }, 4000);
+      return;
+    }
+    const s = script[idx++];
+    const lang = document.documentElement.lang === 'ar' ? 'ar' : 'en';
+    [termAr, termEn].forEach((t,i)=>{
+      if (!t) return;
+      if ((i===0 && lang!=='ar') || (i===1 && lang!=='en')) return;
+      const d = document.createElement('div');
+      d.className = 'line ' + s.cls;
+      d.textContent = s[lang];
+      t.appendChild(d);
+      t.scrollTop = t.scrollHeight;
+    });
+    setTimeout(runTerminal, 650);
+  }
+
+  const fileData = {
+    dossier: {ar:'dossier_NULL.pdf — الملف مُختوم. التصريح مطلوب للوصول.', en:'dossier_NULL.pdf — file sealed. Clearance required.'},
+    id:      {ar:'id_scan_042.png — الملف مُختوم. التصريح مطلوب للوصول.', en:'id_scan_042.png — file sealed. Clearance required.'},
+    logs:    {ar:'network_logs.csv — الملف مُختوم. التصريح مطلوب للوصول.', en:'network_logs.csv — file sealed. Clearance required.'},
+    keys:    {ar:'session_tokens.bin — الملف مُختوم. التصريح مطلوب للوصول.', en:'session_tokens.bin — file sealed. Clearance required.'},
+    db:      {ar:'users_table.sql — الملف مُختوم. التصريح مطلوب للوصول.', en:'users_table.sql — file sealed. Clearance required.'},
+    ip:      {ar:'ip_origin.json — الملف مُختوم. التصريح مطلوب للوصول.', en:'ip_origin.json — file sealed. Clearance required.'}
+  };
+  function openFile(k){
+    const lang = document.documentElement.lang === 'ar' ? 'ar' : 'en';
+    const o = document.createElement('div');
+    o.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(2,4,5,.85);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px);';
+    o.innerHTML = `
+      <div style="max-width:520px;width:100%;background:#0d1219;border:1px solid #ff2d55;border-radius:10px;padding:24px;color:#ff9aa8;font-family:Consolas,monospace;box-shadow:0 0 60px rgba(255,45,85,.2);">
+        <div style="font-size:.7rem;letter-spacing:3px;color:#ff2d55;margin-bottom:12px;">■ ACCESS DENIED</div>
+        <p style="font-size:.9rem;line-height:1.7;color:#c9d6e3;">${fileData[k][lang]}</p>
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="margin-top:18px;background:#ff2d55;color:#000;border:none;border-radius:4px;padding:9px 20px;font-weight:700;cursor:pointer;font-family:inherit;">OK</button>
+      </div>`;
+    document.body.appendChild(o);
+  }
+
+  let lang = 'ar';
+  function toggleLang(){
+    lang = lang === 'ar' ? 'en' : 'ar';
+    const isAr = lang === 'ar';
+    document.getElementById('ar').hidden = !isAr;
+    document.getElementById('en').hidden = isAr;
+    document.documentElement.lang = lang;
+    document.documentElement.dir = isAr ? 'rtl' : 'ltr';
+    document.getElementById('langBtn').textContent = isAr ? 'EN' : 'AR';
+    idx = 0; termAr.innerHTML=''; termEn.innerHTML=''; runTerminal();
+  }
+</script>
+
+</body>
+</html>
